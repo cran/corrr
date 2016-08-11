@@ -10,6 +10,7 @@
 #' 
 #' @param x cor_df. See \code{\link{correlate}}.
 #' @inheritParams dplyr::select
+#' @param .dots Use focus_ to do standard evaluations. See \code{\link[dplyr]{select}}.
 #' @param mirror Boolean. Whether to mirror the selected columns in the rows or
 #'   not.
 #' @return A tbl or, if mirror = TRUE, a cor_df (see \code{\link{correlate}}).
@@ -23,7 +24,13 @@
 #' focus(x, -matches("Sepal"))  # Focus on correlations of non-Sepal 
 #'                              # variables with Sepal variables.
 focus <- function(x, ..., mirror = FALSE) {
-  UseMethod("focus")
+  focus_(x, .dots = lazyeval::lazy_dots(...), mirror = mirror)
+}
+
+#' @export
+#' @rdname focus
+focus_ <- function(x, ..., .dots, mirror) {
+  UseMethod("focus_")
 }
 
 #' Stretch correlation data frame into long format.
@@ -33,7 +40,7 @@ focus <- function(x, ..., mirror = FALSE) {
 #' data frame. The rowname column is handled automatically.
 #' 
 #' @param x cor_df. See \code{\link{correlate}}.
-#' @param na_omit Boolean. Whether rows with an NA correlation (originally the
+#' @param na.rm Boolean. Whether rows with an NA correlation (originally the
 #'   matrix diagonal) should be dropped? Will automatically be set to TRUE if
 #'   mirror is FALSE.
 #' @return tbl with three colums (x and y variables, and their correlation)
@@ -41,11 +48,11 @@ focus <- function(x, ..., mirror = FALSE) {
 #' @examples
 #' x <- correlate(mtcars)
 #' stretch(x)  # Convert all to long format
-#' stretch(x, na_omit = FALSE)  # omit NAs (diagonal in this case)
+#' stretch(x, na.rm = FALSE)  # omit NAs (diagonal in this case)
 #' 
 #' x <- shave(x)  # use shave to set upper triangle to NA and then...
-#' stretch(x, na_omit = FALSE)  # omit all NAs, therefore keeping each
+#' stretch(x, na.rm = FALSE)  # omit all NAs, therefore keeping each
 #'                              # correlation only once.
-stretch <- function(x, na_omit = FALSE) {
+stretch <- function(x, na.rm = FALSE) {
   UseMethod("stretch")
 }

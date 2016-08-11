@@ -47,7 +47,8 @@ Reshape structure (`tbl` or `cor_df` out):
 Output/visualisations (console/plot out):
 
 -   `fashion()` the correlations for pretty printing.
--   `rplot()` plots the correlations.
+-   `rplot()` the correlations with shapes in place of the values.
+-   `network_plot()` the correlations in a network.
 
 Examples
 --------
@@ -113,21 +114,30 @@ corrr functions work in pipelines (`cor_df` in; `cor_df` or `tbl` out):
 x <- datasets::mtcars %>%
        correlate() %>%    # Create correlation data frame (cor_df)
        focus(-cyl, -vs, mirror = TRUE) %>%  # Focus on cor_df without 'cyl' and 'vs'
-       rearrange(method = "HC", absolute = FALSE) %>%  # arrange by correlations
+       rearrange() %>%  # rearrange by correlations
        shave() # Shave off the upper triangle for a clean result
-
+       
 fashion(x)
-#>      disp wt   hp   carb qsec mpg  drat am   gear
-#> disp                                             
-#> wt    .89                                        
-#> hp    .79  .66                                   
-#> carb  .39  .43  .75                              
-#> qsec -.43 -.17 -.71 -.66                         
-#> mpg  -.85 -.87 -.78 -.55  .42                    
-#> drat -.71 -.71 -.45 -.09  .09  .68               
-#> am   -.59 -.69 -.24  .06 -.23  .60  .71          
-#> gear -.56 -.58 -.13  .27 -.21  .48  .70  .79
+#>   rowname   am drat gear   wt disp  mpg   hp qsec carb
+#> 1      am                                             
+#> 2    drat  .71                                        
+#> 3    gear  .79  .70                                   
+#> 4      wt -.69 -.71 -.58                              
+#> 5    disp -.59 -.71 -.56  .89                         
+#> 6     mpg  .60  .68  .48 -.87 -.85                    
+#> 7      hp -.24 -.45 -.13  .66  .79 -.78               
+#> 8    qsec -.23  .09 -.21 -.17 -.43  .42 -.71          
+#> 9    carb  .06 -.09  .27  .43  .39 -.55  .75 -.66
 rplot(x)
 ```
 
 ![](README-combination-1.png)
+
+``` r
+
+datasets::airquality %>% 
+  correlate() %>% 
+  network_plot(min_cor = .2)
+```
+
+![](README-combination-2.png)

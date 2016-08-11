@@ -1,7 +1,7 @@
 ## ----setup, echo = FALSE-------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
-## ------------------------------------------------------------------------
+## ---- message = F, warning = F-------------------------------------------
 library(corrr)
 d <- correlate(mtcars)
 d

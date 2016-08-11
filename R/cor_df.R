@@ -68,14 +68,14 @@ rearrange.cor_df <- function(x, method = "PCA", absolute = TRUE) {
 # Reshape -----------------------------------------------------------------
 
 #' @export
-focus.cor_df <- function(x, ..., mirror = FALSE) {
+focus_.cor_df <- function(x, ..., .dots = NULL, mirror = FALSE) {
   
   # Store rownames in case they're dropped in next step
   row_names <- x$rowname
   
   # Select relevant columns
-  x %<>% dplyr::select_(.dots = lazyeval::lazy_dots(...))
-  
+  x %<>% dplyr::select_(..., .dots = .dots)
+
   # Get selected column names and
   # append back rownames if necessary
   vars <- colnames(x)
@@ -97,17 +97,13 @@ focus.cor_df <- function(x, ..., mirror = FALSE) {
 }
 
 #' @export
-stretch.cor_df <- function(x, na_omit = FALSE) {
+stretch.cor_df <- function(x, na.rm = FALSE) {
   
   vars <- names(x)[names(x) != "rowname"]
   
   x %<>%
-    tidyr::gather_("x", "r", vars) %>% 
+    tidyr::gather_("x", "r", vars, na.rm) %>% 
     dplyr::rename_("y" = "rowname")
-  
-  if (na_omit) {
-    x <- x[!is.na(x$r), ]
-  }
   
   x[, c("x", "y", "r")]
 }
@@ -116,54 +112,121 @@ stretch.cor_df <- function(x, na_omit = FALSE) {
 # Output --------------------------------------------------------------------
 
 #' @export
-fashion.cor_df <- function(x, digits = 2) {
-  vars <- x$rowname
-  
-  x %<>% as_matrix(diagonal = NA)
-  x <- sub("^-0.", "-\\1.", sprintf(paste0("%.", digits, "f"), x))
-  x <- sub("^0.", " \\1.", x)
-  x <- sub("NA", "", x)
-  x %<>% matrix(nrow = length(vars))
-  rownames(x) <- colnames(x) <- vars
-  noquote(x)
-}
-
-#' @export
-rplot.cor_df <- function(x, shape = 16) {
+rplot.cor_df <- function(x, print_cor = FALSE, shape = 16) {
   # Store order for factoring the variables
   row_order <- x$rowname
   
   # Prep dots for mutate_
   dots <- stats::setNames(list(lazyeval::interp(~ factor(x, levels = row_order),
                                            x = quote(x)),
-                          lazyeval::interp(~ factor(y, levels = rev(row_order)),
-                                           y = quote(y)),
-                          lazyeval::interp(~ abs(r),
-                                           r = quote(r)),
-                          lazyeval::interp(~ ifelse(is.na(r), as.character(x), NA),
-                                           r = quote(r), x = quote(x))
-                          ),
+                               lazyeval::interp(~ factor(y, levels = rev(row_order)),
+                                                y = quote(y)),
+                               lazyeval::interp(~ abs(r),
+                                                r = quote(r)),
+                               lazyeval::interp(~ as.character(fashion(r)),
+                                                r = quote(r))
+                               #lazyeval::interp(~ as.character(x),
+                              #                  x = quote(x))
+                              ),
                      list("x", "y", "size", "label"))
   
   # Convert data to relevant format and plot
-  x %>%
-    # Convert to wide
-    stretch() %>%
-    # Factor x and y to correct order
-    # and add text column to fill diagonal
-    # See dots above
-    dplyr::mutate_(.dots = dots) %>% 
-    # plot
-    ggplot2::ggplot(ggplot2::aes_string(x = "x", y = "y", color = "r",
-                                        size = "size", alpha = "size",
-                                        label = "label")) +
-    ggplot2::geom_point(shape = shape) +
-    ggplot2::scale_colour_gradient2(limits = c(-1, 1),
-                                    low    = "indianred2",
-                                    mid    = "white",
-                                    high   = "skyblue1") +
-    ggplot2::geom_text(show.legend = FALSE) +
-    ggplot2::labs(x = "", y ="") +
-    ggplot2::theme_classic() +
-    ggplot2::theme(legend.position = "none")
+  p <- x %>%
+        # Convert to wide
+        stretch(na.rm = TRUE) %>%
+        # Factor x and y to correct order
+        # and add text column to fill diagonal
+        # See dots above
+        dplyr::mutate_(.dots = dots) %>% 
+        # plot
+        ggplot2::ggplot(ggplot2::aes_string(x = "x", y = "y", color = "r",
+                                            size = "size", alpha = "size",
+                                            label = "label")) +
+        ggplot2::geom_point(shape = shape) +
+        ggplot2::scale_colour_gradient2(limits = c(-1, 1),
+                                        low    = "indianred2",
+                                        mid    = "white",
+                                        high   = "skyblue1") +
+        ggplot2::labs(x = "", y ="") +
+        ggplot2::theme_classic() +
+        ggplot2::theme(legend.position = "none")
+  
+  if (print_cor) {
+    p <- p + ggplot2::geom_text(color = "black", size = 3, show.legend = FALSE)
+  }
+    
+  p
+}
+
+#' @export
+network_plot.cor_df <- function(x, min_cor = .30) {
+  
+  if (min_cor < 0 || min_cor > 1) {
+    stop ("min_cor must be a value ranging from zero to one.")
+  }
+  
+  x %<>% as_matrix()
+  distance <- sign(x) * (1 - abs(x))
+  
+  # Use multidimensional Scaling to obtain x and y coordinates for points.
+  points <- distance %>%
+    abs() %>%
+    stats::cmdscale() %>%
+    data.frame() %>%
+    dplyr::rename_(x = "X1", y = "X2")
+  points$id <- rownames(points)
+  
+  # Create a proximity matrix of the paths to be plotted.
+  proximity <- abs(x)
+  proximity[upper.tri(proximity)] <- NA
+  diag(proximity) <- NA
+  proximity[proximity < min_cor] <- NA
+  
+  # Produce a data frame of data needed for plotting the paths.
+  n_paths <- sum(!is.na(proximity))
+  paths <- matrix(nrow = n_paths, ncol = 6) %>% data.frame()
+  colnames(paths) <- c("x", "y", "xend", "yend", "proximity", "sign")
+  path <- 1
+  for(row in 1:nrow(proximity)) {
+    for(col in 1:ncol(proximity)) {
+      path_proximity <- proximity[row, col]
+      if (!is.na(path_proximity)) {
+        path_sign <- sign(distance[row, col])
+        x    <- points$x[row]
+        y    <- points$y[row]
+        xend <- points$x[col]
+        yend <- points$y[col]
+        paths[path, ] <- c(x, y, xend, yend, path_proximity, path_sign)
+        path <- path + 1
+      }
+    }
+  }
+  
+  # Produce the plot.
+  ggplot2::ggplot() +
+    # Plot the paths
+    ggplot2::geom_curve(data = paths,
+                        ggplot2::aes(x = x, y = y, xend = xend, yend = yend,
+                                     alpha = proximity, size = proximity,
+                                     colour = factor(sign)),
+                        show.legend = FALSE) +
+    ggplot2::scale_size(limits = c(0, 1)) +
+    ggplot2::scale_alpha(limits = c(0, 1)) +
+    # Plot the points
+    ggplot2::geom_point(data = points,
+                        ggplot2::aes(x, y),
+                        size = 3, shape = 19, colour = "white") +
+    # Plot variable labels
+    ggrepel::geom_text_repel(data = points,
+                             ggplot2::aes(x, y, label = id),
+                             fontface = 'bold', size = 5,
+                             segment.size = 0.0,
+                             segment.color = "white") +
+    # expand the axes to add space for curves
+    ggplot2::expand_limits(x = c(min(points$x) - .1,
+                                 max(points$x) + .1),
+                           y = c(min(points$y) - .1,
+                                 max(points$y) + .1)
+    ) +
+    ggplot2::theme_void()
 }

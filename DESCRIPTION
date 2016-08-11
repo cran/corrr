@@ -1,6 +1,6 @@
 Package: corrr
 Type: Package
-Version: 0.1.0
+Version: 0.2.0
 Title: Correlations in R
 Description: A tool for exploring correlations.
     It makes it possible to easily perform routine tasks when
@@ -20,11 +20,11 @@ RoxygenNote: 5.0.1
 Suggests: testthat (>= 1.0.2), knitr (>= 1.13), rmarkdown (>= 0.9.6)
 Imports: magrittr (>= 1.5), tidyr (>= 0.5.1), ggplot2 (>= 2.1.0),
         seriation (>= 1.2-0), lazyeval (>= 0.2.0), purrr (>= 0.2.2),
-        tibble (>= 1.1)
+        tibble (>= 1.1), ggrepel (>= 0.5)
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2016-07-07 23:02:23 UTC; Simon
+Packaged: 2016-08-05 01:42:10 UTC; Simon Jackson
 Author: Simon Jackson [aut, cre]
 Maintainer: Simon Jackson <drsimonjackson@gmail.com>
 Repository: CRAN
-Date/Publication: 2016-07-08 11:48:07
+Date/Publication: 2016-08-11 13:44:04
