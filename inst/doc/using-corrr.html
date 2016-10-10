@@ -12,7 +12,7 @@
 
 <meta name="author" content="Simon Jackson" />
 
-<meta name="date" content="2016-08-05" />
+<meta name="date" content="2016-10-05" />
 
 <title>Using corrr</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Using corrr</h1>
 <h4 class="author"><em>Simon Jackson</em></h4>
-<h4 class="date"><em>2016-08-05</em></h4>
+<h4 class="date"><em>2016-10-05</em></h4>
 
 
 
@@ -87,7 +87,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(corrr)
 d &lt;-<span class="st"> </span><span class="kw">correlate</span>(mtcars)
 d
-<span class="co">#&gt; # A tibble: 11 x 12</span>
+<span class="co">#&gt; # A tibble: 11 × 12</span>
 <span class="co">#&gt;    rowname        mpg        cyl       disp         hp        drat</span>
 <span class="co">#&gt;      &lt;chr&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;</span>
 <span class="co">#&gt; 1      mpg         NA -0.8521620 -0.8475514 -0.7761684  0.68117191</span>
@@ -112,7 +112,7 @@ d
 <span class="co"># Filter rows to occasions in which cyl has a correlation of .7 or more with</span>
 <span class="co"># another variable.</span>
 d %&gt;%<span class="st"> </span><span class="kw">filter</span>(cyl &gt;<span class="st"> </span>.<span class="dv">7</span>)
-<span class="co">#&gt; # A tibble: 3 x 12</span>
+<span class="co">#&gt; # A tibble: 3 × 12</span>
 <span class="co">#&gt;   rowname        mpg       cyl      disp        hp       drat        wt</span>
 <span class="co">#&gt;     &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;</span>
 <span class="co">#&gt; 1    disp -0.8475514 0.9020329        NA 0.7909486 -0.7102139 0.8879799</span>
@@ -123,7 +123,7 @@ d %&gt;%<span class="st"> </span><span class="kw">filter</span>(cyl &gt;<span cl
 
 <span class="co"># Select the mpg, cyl and disp columns (and rowname)</span>
 d %&gt;%<span class="st"> </span><span class="kw">select</span>(rowname, mpg, cyl, disp)
-<span class="co">#&gt; # A tibble: 11 x 4</span>
+<span class="co">#&gt; # A tibble: 11 × 4</span>
 <span class="co">#&gt;    rowname        mpg        cyl       disp</span>
 <span class="co">#&gt;      &lt;chr&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;</span>
 <span class="co">#&gt; 1      mpg         NA -0.8521620 -0.8475514</span>
@@ -142,7 +142,7 @@ d %&gt;%<span class="st"> </span><span class="kw">select</span>(rowname, mpg, cy
 d %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(cyl &gt;<span class="st"> </span>.<span class="dv">7</span>) %&gt;%<span class="st"> </span>
 <span class="st">  </span><span class="kw">select</span>(rowname, mpg, cyl, disp)
-<span class="co">#&gt; # A tibble: 3 x 4</span>
+<span class="co">#&gt; # A tibble: 3 × 4</span>
 <span class="co">#&gt;   rowname        mpg       cyl      disp</span>
 <span class="co">#&gt;     &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;</span>
 <span class="co">#&gt; 1    disp -0.8475514 0.9020329        NA</span>
@@ -180,7 +180,7 @@ d %&gt;%<span class="st"> </span><span class="kw">select</span>(-rowname) %&gt;%
 <p>By combing these functions in data pipelines, it’s possible to easily explore your correlations.</p>
 <p>For example, lets focus on the correlations of mpg and cyl with all the others:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d %&gt;%<span class="st"> </span><span class="kw">focus</span>(mpg, cyl)
-<span class="co">#&gt; # A tibble: 9 x 3</span>
+<span class="co">#&gt; # A tibble: 9 × 3</span>
 <span class="co">#&gt;   rowname        mpg        cyl</span>
 <span class="co">#&gt;     &lt;chr&gt;      &lt;dbl&gt;      &lt;dbl&gt;</span>
 <span class="co">#&gt; 1    disp -0.8475514  0.9020329</span>
@@ -208,14 +208,14 @@ d %&gt;%<span class="st"> </span><span class="kw">select</span>(-rowname) %&gt;%
 <span class="st">  </span><span class="kw">focus</span>(mpg:drat, <span class="dt">mirror =</span> <span class="ot">TRUE</span>) %&gt;%
 <span class="st">  </span><span class="kw">shave</span>(<span class="dt">upper =</span> <span class="ot">FALSE</span>) %&gt;%
 <span class="st">  </span><span class="kw">rplot</span>()     <span class="co"># Plot</span></code></pre></div>
-<p><img src="data:image/png;base64,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" alt /><!-- --></p>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>Perhaps we’d like to rearrange the correlations so that the plot becomes easier to interpret. In this case, we can add <code>rearrange()</code> into our pipeline before shaving one of the triangles (we’ll take correlation sign into account with <code>absolute = FALSE</code>).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d %&gt;%
 <span class="st">  </span><span class="kw">focus</span>(mpg:drat, <span class="dt">mirror =</span> <span class="ot">TRUE</span>) %&gt;%
 <span class="st">  </span><span class="kw">rearrange</span>(<span class="dt">absolute =</span> <span class="ot">FALSE</span>) %&gt;%<span class="st"> </span>
 <span class="st">  </span><span class="kw">shave</span>() %&gt;%
 <span class="st">  </span><span class="kw">rplot</span>()</code></pre></div>
-<p><img src="data:image/png;base64,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" alt /><!-- --></p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAkFBMVEUAAAAAADoAAGYAOpAAZmYAZpAAZrY6AAA6ADo6AGY6OmY6OpA6kJA6kLY6kNtmAABmADpmAGZmOgBmZmZmkJBmtv+QOgCQOjqQkGaQ2/+V0/+s3P+2ZgC2kDq2tma2/9u2//+44f/U7P/bkDrb///1iYX2i4j5pqP7vLn8v7z/tmb/25D/+Pj//7b//9v///+CWGcSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAGc0lEQVR4nO3dD1MaRxiA8VNTMWkT0zSYKjYVlP8q3//b9RYOpGbCs7vjUso9z0wmOMMd5jfHcTBZ3mphO6v+61/g0BMIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggqCDSoK7f3fVUMaNBUav/7qhTQYHAkQlFAT5+vE3c7GByLUAbQ/P0dbiHQ7gaDoxFioFlVvft8Pf/w5fSuvlmdP11WJ/SMaxPQ02V3cX9yPe90lzdn9c3VEVRj/XTjNgHNzh7CU2x+sTpqwk2fYtvdN0BBZd6pqpMYoDadpGcvQOEoijuC2gS0PgfVKrPTu8XtyebZtrNj8Yl4FaufV7+tDpvnq6r6eNWt/+ryjo/ExzerlB93QAJBAkECQQJBAkECQQJBAkECQQJBAkECQQJBAkECQQJBAkECQQJBAkECQQJBAkECQQJBAkECQQJBAkECQQJBAkECQQJBAkECQQJBAkECQQWBxnXl9r6vigGNm0rtf1+VAhqPj0SoENB4fCxC0UAxq8Q2jcdHIyQQVARoPM4WenxMuPM+SgD6XlXdxfO3P6vqHO6bD/T4eGhC8UCd87Am8/nq9O7p8tNi57LwdgJdXIen2fNVd7G4h0OopU+xuw1QWAm9s7aepGOPoHYDnT2EleLQ0fhkAP1RVZ/47sfik/xWY/kUi+lIfMoBtfXjjgSg48hPFCGBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBoIJAo1C53W/q15XbezGg0bqkrSahpC36TUkbJVQKaDTKEJqsi9+k3y8sVAhoNMoQmkyShfr90kIRQJGTQ7cbjTKEJpNkoX6/uFAcUOpeBdrd6HUxG00myUL9fnkhAmpmhYcxtGGMcdyy8BYBvczpDcfR7Owhall4i4BeJj03C1WjFvW2CGhrVvjT5fKbF2KWhe8L6ABO0luzwsNPp5HLwtvzKvZyDgrfvLAEilkWvi+gA7hQfJkV3ryKxS0Lz/DJupI+vLcasYt6M3yy3osd3JvV6FXPGT6LnHfzh/ZxR8Ky8HSeQ8xPFCGBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggaCWAt3Uxd2zINAwVG73m3qhpC1ummLuWwxouC5pq2ld2uP01kVvcbMV37sU0HCYITRtSnicXi9V6OYmSagQ0HCYITSdJgv1eslCewDiReLDYYbQdJos1OslC93cpAkJBBUBGr4uZq/TabJQ73W8yWsfFIoEmnfCgtXbsBTz/lygHwqLMMOyzFrm+aq7AtqxLLx9QM0y57BYrHHaWfuA7pt14Pfni/tPhc5BGSfpDKBCJ+n1Qvmn3//+du2r2I8tz0EX14vF7ddfH0oBZVwoZgAVulBcvYqF7zrpxlwH5V1JZ7zVSPcpfCUd/U1LOT6LjDeryT6F36zil1JsyvLJKNlnUfDjjnnnNOGruvbBE0rlCcXytPYTxfgEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCigLl7PzQthGowL7f/Jc45G0EKrDvViUQJBAkECQQdDhAGaMU4//L5L8eJmmrQwWK+0fkASXdXyDorYGer752qvN5/WczL7L+4ReaCNTMmvzw5fSuvlmdP12GWV3Y/P335di8mMmUWw+TMtLy7YHCgLazh/nFdTMvcjnDrdoNtJ7z1ukub85OIs8T8875aircejLl7naMtPxpbw/UXf9ppv0tpwDCTLv1pMCL1VETfSING9T3jJsrmDfSsjTQ7Oyv+reioVtbsyaXqx6ij6D6Xmsgmky5yBtpeVhHUPj31gdF/BG0BZR0BC1/ihppWRRoOS8y5RwUzp6nd4vbk82zbXcboJjJlHkjLYsCreZF1s+Zd/Ta+jJr8vmqqj6GjcF0tdkaKGoyZdZIy4LXQVsnnpyr5LxHevMNywM1R3O5x/m/A9UnoKiLvjd4pBIbHs5bjQNNIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEggSCBIIEgg6B/LeMRctz3KEwAAAABJRU5ErkJggg==" /><!-- --></p>
 </div>
 </div>
 <div id="other-resources" class="section level2">

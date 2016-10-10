@@ -1,6 +1,6 @@
 Package: corrr
 Type: Package
-Version: 0.2.0
+Version: 0.2.1
 Title: Correlations in R
 Description: A tool for exploring correlations.
     It makes it possible to easily perform routine tasks when
@@ -23,8 +23,8 @@ Imports: magrittr (>= 1.5), tidyr (>= 0.5.1), ggplot2 (>= 2.1.0),
         tibble (>= 1.1), ggrepel (>= 0.5)
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2016-08-05 01:42:10 UTC; Simon Jackson
+Packaged: 2016-10-05 08:11:43 UTC; Simon Jackson
 Author: Simon Jackson [aut, cre]
 Maintainer: Simon Jackson <drsimonjackson@gmail.com>
 Repository: CRAN
-Date/Publication: 2016-08-11 13:44:04
+Date/Publication: 2016-10-10 13:51:49
