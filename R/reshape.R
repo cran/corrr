@@ -16,6 +16,7 @@
 #' @return A tbl or, if mirror = TRUE, a cor_df (see \code{\link{correlate}}).
 #' @export
 #' @examples
+#' library(dplyr)
 #' x <- correlate(mtcars)
 #' focus(x, mpg, cyl)  # Focus on correlations of mpg and cyl with all other variables
 #' focus(x, -disp, - mpg, mirror = TRUE)  # Remove disp and mpg from columns and rows
@@ -31,6 +32,41 @@ focus <- function(x, ..., mirror = FALSE) {
 #' @rdname focus
 focus_ <- function(x, ..., .dots, mirror) {
   UseMethod("focus_")
+}
+
+#' Conditionally focus correlation data frame
+#' 
+#' Apply a predicate function to each colum of correlations. Columns that
+#' evaluate to TRUE will be included in a call to \code{\link{focus}}.
+#' 
+#' @param x Correlation data frame or object to be coerced to one via
+#'   \code{\link{as_cordf}}.
+#' @param .predicate A predicate function to be applied to the columns. The
+#'   columns for which .predicate returns TRUE will be included as variables in
+#'   \code{\link{focus}}.
+#' @param ... Additional arguments to pass to the predicate function if not anonymous. 
+#' @inheritParams focus
+#' @return A tibble or, if mirror = TRUE, a correlation data frame.
+#' @export
+#' @examples
+#' library(dplyr)
+#' any_greater_than <- function(x, val) {
+#'   mean(abs(x), na.rm = TRUE) > val
+#' }
+#' 
+#' x <- correlate(mtcars)
+#' 
+#' x %>% focus_if(any_greater_than, .6)
+#' x %>% focus_if(any_greater_than, .6, mirror = TRUE) %>% network_plot()
+focus_if <- function(x, .predicate, ..., mirror = FALSE) {
+  UseMethod("focus_if")
+}
+
+#' @export
+focus_if.default <- function(x, .predicate, ..., mirror = FALSE) {
+  # Coerce to cor_df
+  x <- as_cordf(x)
+  focus_if.cor_df(x, .predicate, ..., mirror = mirror)
 }
 
 #' Stretch correlation data frame into long format.

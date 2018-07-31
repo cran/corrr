@@ -4,11 +4,12 @@
 \alias{network_plot}
 \title{Network plot of a correlation data frame}
 \usage{
-network_plot(rdf, min_cor = 0.3, legend = FALSE, colours = c("indianred2",
-  "white", "skyblue1"), colors)
+network_plot(rdf, min_cor = 0.3, legend = TRUE, colours = c("indianred2",
+  "white", "skyblue1"), repel = TRUE, curved = TRUE, colors)
 }
 \arguments{
-\item{rdf}{Correlation data frame (cor_df) created with \code{\link{correlate}}.}
+\item{rdf}{Correlation data frame (see \code{\link{correlate}}) or object
+that can be coerced to one (see \code{\link{as_cordf}}).}
 
 \item{min_cor}{Number from 0 to 1 indicating the minimum value of
 correlations (in absolute terms) to plot.}
@@ -16,6 +17,13 @@ correlations (in absolute terms) to plot.}
 \item{legend}{Boolean indicating whether a legend mapping the colours to the correlations should be displayed.}
 
 \item{colours, colors}{Vector of colours to use for n-colour gradient.}
+
+\item{repel}{Should variable labels repel each other? If TRUE, text is added
+via \code{\link[ggrepel]{geom_text_repel}} instead of \code{\link[ggplot2]{geom_text}}}
+
+\item{curved}{Should the paths be curved? If TRUE, paths are added via
+\code{\link[ggplot2]{geom_curve}}; if FALSE, via
+\code{\link[ggplot2]{geom_segment}}}
 }
 \description{
 Output a network plot of a correlation data frame in which variables that are
@@ -31,4 +39,3 @@ network_plot(x, min_cor = .1)
 network_plot(x, min_cor = .6)
 network_plot(x, min_cor = .7, colors = c("red", "green"), legend = TRUE)
 }
-

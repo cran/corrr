@@ -4,7 +4,8 @@
 \alias{correlate}
 \title{Correlation Data Frame}
 \usage{
-correlate(x, y = NULL, use = "pairwise.complete.obs", method = "pearson")
+correlate(x, y = NULL, use = "pairwise.complete.obs", method = "pearson",
+  diagonal = NA, quiet = FALSE)
 }
 \arguments{
 \item{x}{a numeric vector, matrix or data frame.}
@@ -23,34 +24,52 @@ correlate(x, y = NULL, use = "pairwise.complete.obs", method = "pearson")
     coefficient (or covariance) is to be computed.  One of
     \code{"pearson"} (default), \code{"kendall"}, or \code{"spearman"}:
     can be abbreviated.}
+
+\item{diagonal}{Value (typically numeric or NA) to set the diagonal to.}
+
+\item{quiet}{Set as TRUE to suppress message about `method` and `use`
+parameters.}
 }
 \value{
 A correlation data frame (cor_df)
 }
 \description{
-An implementation of stats::cor(), which returns a correlation matrix in a
-specific format. See details below. Additional adjustment include the use of
-pairwise deletion by default.
+An implementation of stats::cor(), which returns a correlation data frame
+rather than a matrix. See details below. Additional adjustment include the
+use of pairwise deletion by default.
 }
 \details{
 \itemize{
-  This function returns a correlation matrix in the following format:
+  This function returns a correlation matrix as a correlation data frame in
+  the following format:
   \item A tibble (see \code{\link[tibble]{tibble}})
   \item An additional class, "cor_df"
   \item A "rowname" column
-  \item Standardised variances (the matrix diagonal) set to missing values
-  (\code{NA}) so they can be ignored in calculations.
+  \item Standardised variances (the matrix diagonal) set to missing values by
+  default (\code{NA}) so they can be ignored in calculations.
 }
-
-The main feature is the use of the data frame. This is to make use of data
-frame manipulation packages like dplyr and tidyr.
 }
 \examples{
 \dontrun{
 correlate(iris)
 }
 
-correlate(mtcars)
 correlate(iris[-5])
+
+correlate(mtcars)
+
+\dontrun{
+
+# Also supports DB backend and collects results into memory
+
+library(sparklyr)
+sc <- spark_connect(master = "local")
+mtcars_tbl <- copy_to(sc, mtcars)
+mtcars_cors <- mtcars_tbl \%>\% 
+  correlate(use = "complete.obs")
+mtcars_cors
+spark_disconnect(sc)
+
 }
 
+}

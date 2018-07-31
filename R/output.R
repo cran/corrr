@@ -12,6 +12,7 @@
 #' @export
 #' @examples 
 #' # Examples with correlate()
+#' library(dplyr)
 #' mtcars %>% correlate() %>% fashion()
 #' mtcars %>% correlate() %>% fashion(decimals = 1)
 #' mtcars %>% correlate() %>% fashion(leading_zeros = TRUE)
@@ -65,7 +66,8 @@ fashion.default <- function(x, decimals = 2, leading_zeros = FALSE, na_print = "
 #' 
 #' Plot a correlation data frame using ggplot2.
 #' 
-#' @param rdf Correlation data frame (cor_df) created with \code{\link{correlate}}.
+#' @param rdf Correlation data frame (see \code{\link{correlate}}) or object
+#'   that can be coerced to one (see \code{\link{as_cordf}}).
 #' @param legend Boolean indicating whether a legend mapping the colours to the correlations should be displayed.
 #' @param shape \code{\link{geom_point}} aesthetic.
 #' @param print_cor Boolean indicating whether the correlations should be printed over the shapes.
@@ -83,12 +85,18 @@ fashion.default <- function(x, decimals = 2, leading_zeros = FALSE, na_print = "
 #' rplot(x, print_cor = TRUE)
 #' rplot(x, shape = 20, colors = c("red", "green"), legend = TRUE)
 rplot <- function(rdf,
-                  legend = FALSE,
+                  legend = TRUE,
                   shape = 16,
                   colours = c("indianred2", "white", "skyblue1"),
                   print_cor = FALSE,
                   colors) {
   UseMethod("rplot")
+}
+
+#' @export
+rplot.default <- function(rdf, ...) {
+  rdf <- as_cordf(rdf)
+  rplot.cor_df(rdf, ...)  
 }
 
 #' Network plot of a correlation data frame
@@ -102,6 +110,11 @@ rplot <- function(rdf,
 #' @param min_cor Number from 0 to 1 indicating the minimum value of
 #'   correlations (in absolute terms) to plot.
 #' @param colours,colors Vector of colours to use for n-colour gradient.
+#' @param repel Should variable labels repel each other? If TRUE, text is added
+#'   via \code{\link[ggrepel]{geom_text_repel}} instead of \code{\link[ggplot2]{geom_text}}
+#' @param curved Should the paths be curved? If TRUE, paths are added via
+#'   \code{\link[ggplot2]{geom_curve}}; if FALSE, via
+#'   \code{\link[ggplot2]{geom_segment}}
 #' @inheritParams rplot
 #' @export
 #' @examples 
@@ -112,8 +125,17 @@ rplot <- function(rdf,
 #' network_plot(x, min_cor = .7, colors = c("red", "green"), legend = TRUE)
 network_plot <- function(rdf,
                          min_cor = .3,
-                         legend = FALSE,
+                         legend = TRUE,
                          colours = c("indianred2", "white", "skyblue1"),
+                         repel = TRUE,
+                         curved = TRUE,
                          colors) {
   UseMethod("network_plot")
+}
+
+
+#' @export
+network_plot.default <- function(rdf, ...) {
+  rdf <- as_cordf(rdf)
+  network_plot.cor_df(rdf, ...)  
 }

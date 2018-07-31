@@ -1,13 +1,13 @@
 # Utility --------------------------------------------------------------
 
 #' @export
-as_matrix.cor_df <- function(x, diagonal = 1) {
+as_matrix.cor_df <- function(x, diagonal) {
   
   # Separate rownames
   row_names <- x$rowname
   x %<>% dplyr::select_("-rowname")
   # Return diagonal to 1
-  diag(x) <- diagonal
+  if (!missing(diagonal)) diag(x) <- diagonal
   
   # Convert to matrix and set rownames
   class(x) <- "data.frame"
@@ -43,7 +43,7 @@ shave.cor_df <- function(x, upper = TRUE) {
 rearrange.cor_df <- function(x, method = "PCA", absolute = TRUE) {
   
   # Convert to original matrix
-  m <- x %>% as_matrix()
+  m <- x %>% as_matrix(diagonal = 1)
   
   if (absolute) {
     m %<>% abs()
@@ -97,6 +97,24 @@ focus_.cor_df <- function(x, ..., .dots = NULL, mirror = FALSE) {
 }
 
 #' @export
+focus_if.cor_df <- function(x, .predicate, ..., mirror = FALSE) {
+  
+  # Identify which variables to keep
+  to_keep <- x %>% 
+    dplyr::select_("-rowname") %>% 
+    purrr::map_lgl(.predicate, ...)
+
+  to_keep <- names(to_keep)[!is.na(to_keep) & to_keep]
+  
+  if (!length(to_keep)) {
+    stop("No variables were TRUE given the function.")
+  }
+
+  # Create the network plot
+  focus_(x, .dots = to_keep, mirror = mirror)
+}
+
+#' @export
 stretch.cor_df <- function(x, na.rm = FALSE) {
   
   vars <- names(x)[names(x) != "rowname"]
@@ -113,7 +131,7 @@ stretch.cor_df <- function(x, na.rm = FALSE) {
 
 #' @export
 rplot.cor_df <- function(rdf,
-                         legend = FALSE,
+                         legend = TRUE,
                          shape = 16,
                          colours = c("indianred2", "white", "skyblue1"),
                          print_cor = FALSE,
@@ -137,39 +155,60 @@ rplot.cor_df <- function(rdf,
   ),
   list("x", "y", "size", "label"))
   
-  # Convert data to relevant format and plot
-  p <- rdf %>%
+  # Convert data to relevant format for plotting
+  pd <- rdf %>%
     # Convert to wide
     stretch(na.rm = TRUE) %>%
     # Factor x and y to correct order
     # and add text column to fill diagonal
     # See dots above
-    dplyr::mutate_(.dots = dots) %>% 
-    # plot
-    ggplot2::ggplot(ggplot2::aes_string(x = "x", y = "y", color = "r",
-                                        size = "size", alpha = "size",
-                                        label = "label")) +
-    ggplot2::geom_point(shape = shape) +
-    ggplot2::scale_colour_gradientn(limits = c(-1, 1), colors = colours) +
-    ggplot2::labs(x = "", y ="") +
-    ggplot2::theme_classic()
+    mutate_(.dots = dots)
   
-  if (print_cor) {
-    p <- p + ggplot2::geom_text(color = "black", size = 3, show.legend = FALSE)
-  }
+  plot_ <- list(
+    # Geoms
+    geom_point(shape = shape),
+    if (print_cor) geom_text(color = "black", size = 3, show.legend = FALSE),
+    scale_colour_gradientn(limits = c(-1, 1), colors = colours),
+    # Theme, labels, and legends
+    theme_classic(),
+    labs(x = "", y =""),
+    guides(size = "none", alpha = "none"),
+    if (legend)  labs(colour = NULL),
+    if (!legend) theme(legend.position = "none")
+  )
   
-  if (!legend) {
-    p <- p + ggplot2::theme(legend.position = "none")
-  }
+  ggplot(pd, aes_string(x = "x", y = "y", color = "r",
+                        size = "size", alpha = "size",
+                        label = "label")) +
+    plot_
   
-  p
+  #   # plot
+  #   ggplot(aes_string(x = "x", y = "y", color = "r",
+  #                                       size = "size", alpha = "size",
+  #                                       label = "label")) +
+  #   geom_point(shape = shape) +
+  #   scale_colour_gradientn(limits = c(-1, 1), colors = colours) +
+  #   labs(x = "", y ="") +
+  #   theme_classic()
+  # 
+  # if (print_cor) {
+  #   p <- p + geom_text(color = "black", size = 3, show.legend = FALSE)
+  # }
+  # 
+  # if (!legend) {
+  #   p <- p + theme(legend.position = "none")
+  # }
+  # 
+  # p
 }
 
 #' @export
 network_plot.cor_df <- function(rdf,
                                 min_cor = .30,
-                                legend = FALSE,
+                                legend = TRUE,
                                 colours = c("indianred2", "white", "skyblue1"),
+                                repel = TRUE,
+                                curved = TRUE,
                                 colors) {
   
   if (min_cor < 0 || min_cor > 1) {
@@ -179,7 +218,7 @@ network_plot.cor_df <- function(rdf,
   if (!missing(colors))
     colours <- colors
   
-  rdf %<>% as_matrix()
+  rdf %<>% as_matrix(diagonal = 1)
   distance <- sign(rdf) * (1 - abs(rdf))
   
   # Use multidimensional Scaling to obtain x and y coordinates for points.
@@ -216,39 +255,59 @@ network_plot.cor_df <- function(rdf,
     }
   }
   
-  # Produce the plot.
-  p <- ggplot2::ggplot() +
-    # Plot the paths
-    ggplot2::geom_curve(data = paths,
-                        ggplot2::aes(x = x, y = y, xend = xend, yend = yend,
-                                     alpha = proximity,
-                                     size = proximity,
-                                     colour = proximity*sign),
-                        show.legend = FALSE) +
-    ggplot2::scale_alpha(limits = c(0, 1)) +
-    ggplot2::scale_size(limits = c(0, 1)) +
-    ggplot2::scale_colour_gradientn(limits = c(-1, 1), colors = colours) +
+  plot_ <- list(
+    # For plotting paths
+    if (curved) geom_curve(data = paths,
+                           aes(x = x, y = y, xend = xend, yend = yend,
+                               alpha = proximity, size = proximity,
+                               colour = proximity*sign)), 
+    if (!curved) geom_segment(data = paths,
+                              aes(x = x, y = y, xend = xend, yend = yend,
+                                  alpha = proximity, size = proximity,
+                                  colour = proximity*sign)), 
+    scale_alpha(limits = c(0, 1)),
+    scale_size(limits = c(0, 1)),
+    scale_colour_gradientn(limits = c(-1, 1), colors = colours),
     # Plot the points
-    ggplot2::geom_point(data = points,
-                        ggplot2::aes(x, y),
-                        size = 3, shape = 19, colour = "white") +
+    geom_point(data = points,
+                        aes(x, y),
+                        size = 3, shape = 19, colour = "white"),
     # Plot variable labels
-    ggrepel::geom_text_repel(data = points,
-                             ggplot2::aes(x, y, label = id),
-                             fontface = 'bold', size = 5,
-                             segment.size = 0.0,
-                             segment.color = "white") +
+    if (repel) ggrepel::geom_text_repel(data = points,
+                                        aes(x, y, label = id),
+                                        fontface = 'bold', size = 5,
+                                        segment.size = 0.0,
+                                        segment.color = "white"),
+    if (!repel) geom_text(data = points,
+                          aes(x, y, label = id),
+                          fontface = 'bold', size = 5),
     # expand the axes to add space for curves
-    ggplot2::expand_limits(x = c(min(points$x) - .1,
+    expand_limits(x = c(min(points$x) - .1,
                                  max(points$x) + .1),
                            y = c(min(points$y) - .1,
                                  max(points$y) + .1)
-    ) +
-    ggplot2::theme_void()
+    ),
+    # Theme and legends
+    theme_void(),
+    guides(size = "none", alpha = "none"),
+    if (legend)  labs(colour = NULL),
+    if (!legend) theme(legend.position = "none")
+  )
+
+  ggplot() + plot_
+
+}
+
+
+# Arithmetic --------------------------------------------------------------
+
+#' @export
+Ops.cor_df <- function(e1, e2) {
+  e1 <- as_matrix(e1)
   
-  if (!legend) {
-    p <- p + ggplot2::theme(legend.position = "none")
-  }
-  
-  p
+  if(methods::is(e2, "cor_df"))
+    e2 <- as_matrix(e2)
+
+ x <- methods::callGeneric(e1, e2)
+ as_cordf(x)
 }
