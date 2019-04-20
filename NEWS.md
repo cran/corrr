@@ -1,3 +1,17 @@
+# corrr 0.3.2
+
+- Improves support for `tbl_sql()` objects
+
+- Switches correlation calculation for `tbl_spark()` tables to `sparklyr::ml_corr()`
+
+- Adds package level doc (@jsta, #66)
+
+- Fixes typo on error message (@jsta)
+
+- Removes Database vignette. Plan to re-add later on (#76)
+
+- Minor updates to Using corrr vignette
+
 # corrr 0.3.1
 
 - Fixes test and CRAN issues by removing `Ops.cor_df()`. 
