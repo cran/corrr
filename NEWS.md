@@ -1,3 +1,15 @@
+# corrr 0.4.0
+
+- Adds `remove.dups` argument to `stretch()`.  It removes duplicates with out removing all NAs (#57)
+
+- Adds `dice()` function, wraps `focus(x,..., mirror = TRUE)` (#64)
+
+- Adds `retract()` function, opposite of `stretch()` (#65)
+
+- Improves `correlate()` for database backed tables
+
+- Fixes compatibility issues with `dplyr` 
+
 # corrr 0.3.2
 
 - Improves support for `tbl_sql()` objects
@@ -40,7 +52,7 @@ The `diagonal` argument of `as_matrix` and `as_matrix.cor_df` is now an optional
 
 ## Fixes
 
-- When `legend = TRUE` (now the default setting), `rplot` and `network_plot` generate a single, unlabelled legend referring to the size of the correlations.
+- When `legend = TRUE` (now the default setting), `rplot` and `network_plot` generate a single, unlabeled legend referring to the size of the correlations.
 
 ## Other
 

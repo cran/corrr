@@ -4,16 +4,14 @@
 as_matrix.cor_df <- function(x, diagonal) {
   
   # Separate rownames
-  row_names <- x$rowname
-  x %<>% dplyr::select_("-rowname")
+  row_name <- x$rowname
+  x <- x[, colnames(x) != "rowname"]
   # Return diagonal to 1
   if (!missing(diagonal)) diag(x) <- diagonal
-  
   # Convert to matrix and set rownames
   class(x) <- "data.frame"
-  #x %<>% as.matrix()
   x <- as.matrix(x)
-  rownames(x) <- row_names
+  rownames(x) <- row_name
   x
 }
 
@@ -23,8 +21,8 @@ as_matrix.cor_df <- function(x, diagonal) {
 shave.cor_df <- function(x, upper = TRUE) {
   
   # Separate rownames
-  row_names <- x$rowname
-  x %<>% dplyr::select_("-rowname")
+  row_name <- x$rowname
+  x <- x[, colnames(x) != "rowname"]
   
   # Remove upper matrix
   if (upper) {
@@ -34,7 +32,7 @@ shave.cor_df <- function(x, upper = TRUE) {
   }
   
   # Reappend rownames and class
-  x %<>% first_col(row_names)
+  x <-  first_col(x, row_name)
   class(x) <- c("cor_df", class(x))
   x
 }
@@ -43,19 +41,17 @@ shave.cor_df <- function(x, upper = TRUE) {
 rearrange.cor_df <- function(x, method = "PCA", absolute = TRUE) {
   
   # Convert to original matrix
-  m <- x %>% as_matrix(diagonal = 1)
+  m <- as_matrix(x, diagonal = 1)
   
-  if (absolute) {
-    m %<>% abs()
-  }
+  if (absolute) abs(m) 
   
   if (method %in% c("BEA", "BEA_TSP", "PCA", "PCA_angle")) {
-    ord <- m %>% seriation::seriate(method = method)
+    ord <- seriation::seriate(m, method = method)
   } else {
-    ord <- dist(m) %>% seriation::seriate(method = method)
+    ord <- seriation::seriate(dist(m), method = method)
   }
   
-  ord %<>% seriation::get_order()
+  ord <- seriation::get_order(ord)
   
   # Arrange and return matrix
   # "c(1, 1 + ..." to handle rowname column
@@ -69,20 +65,20 @@ rearrange.cor_df <- function(x, method = "PCA", absolute = TRUE) {
 
 #' @export
 focus_.cor_df <- function(x, ..., .dots = NULL, mirror = FALSE) {
-  
-  # Store rownames in case they're dropped in next step
-  row_names <- x$rowname
-  
-  # Select relevant columns
-  x %<>% dplyr::select_(..., .dots = .dots)
-  
+  vars <- enquos(...)
+  row_name <- x$rowname
+  if(length(vars) > 0) {
+    x <-  dplyr::select(x, !!! vars)  
+  } else {
+    x <-  dplyr::select(x, .dots)
+  }
   # Get selected column names and
   # append back rownames if necessary
   vars <- colnames(x)
   if ("rowname" %in% vars) {
     vars <- vars[vars != "rowname"]
   } else {
-    x %<>% first_col(row_names)
+    x <-  first_col(x, row_name)
   }
   
   # Exclude these or others from the rows
@@ -100,32 +96,19 @@ focus_.cor_df <- function(x, ..., .dots = NULL, mirror = FALSE) {
 focus_if.cor_df <- function(x, .predicate, ..., mirror = FALSE) {
   
   # Identify which variables to keep
-  to_keep <- x %>% 
-    dplyr::select_("-rowname") %>% 
-    purrr::map_lgl(.predicate, ...)
+  to_keep <- map_lgl(
+    x[, colnames(x) != "rowname"], 
+    .predicate, ...
+    )
 
   to_keep <- names(to_keep)[!is.na(to_keep) & to_keep]
   
   if (!length(to_keep)) {
     stop("No variables were TRUE given the function.")
   }
-
   # Create the network plot
   focus_(x, .dots = to_keep, mirror = mirror)
 }
-
-#' @export
-stretch.cor_df <- function(x, na.rm = FALSE) {
-  
-  vars <- names(x)[names(x) != "rowname"]
-  
-  x %<>%
-    tidyr::gather_("x", "r", vars, na.rm) %>% 
-    dplyr::rename_("y" = "rowname")
-  
-  x[, c("x", "y", "r")]
-}
-
 
 # Output --------------------------------------------------------------------
 
@@ -143,26 +126,10 @@ rplot.cor_df <- function(rdf,
   # Store order for factoring the variables
   row_order <- rdf$rowname
   
-  # Prep dots for mutate_
-  dots <- stats::setNames(list(lazyeval::interp(~ factor(x, levels = row_order),
-                                                x = quote(x)),
-                               lazyeval::interp(~ factor(y, levels = rev(row_order)),
-                                                y = quote(y)),
-                               lazyeval::interp(~ abs(r),
-                                                r = quote(r)),
-                               lazyeval::interp(~ as.character(fashion(r)),
-                                                r = quote(r))
-  ),
-  list("x", "y", "size", "label"))
-  
   # Convert data to relevant format for plotting
-  pd <- rdf %>%
-    # Convert to wide
-    stretch(na.rm = TRUE) %>%
-    # Factor x and y to correct order
-    # and add text column to fill diagonal
-    # See dots above
-    mutate_(.dots = dots)
+  pd <- stretch(rdf, na.rm = TRUE) 
+  pd$size = abs(pd$r)
+  pd$label = fashion(pd$r)
   
   plot_ <- list(
     # Geoms
@@ -218,15 +185,12 @@ network_plot.cor_df <- function(rdf,
   if (!missing(colors))
     colours <- colors
   
-  rdf %<>% as_matrix(diagonal = 1)
+  rdf <-  as_matrix(rdf, diagonal = 1)
   distance <- sign(rdf) * (1 - abs(rdf))
   
   # Use multidimensional Scaling to obtain x and y coordinates for points.
-  points <- distance %>%
-    abs() %>%
-    stats::cmdscale() %>%
-    data.frame() %>%
-    dplyr::rename_(x = "X1", y = "X2")
+  points <- data.frame(stats::cmdscale(abs(distance)))
+  colnames(points) <-  c("x", "y")
   points$id <- rownames(points)
   
   # Create a proximity matrix of the paths to be plotted.
@@ -237,7 +201,7 @@ network_plot.cor_df <- function(rdf,
   
   # Produce a data frame of data needed for plotting the paths.
   n_paths <- sum(!is.na(proximity))
-  paths <- matrix(nrow = n_paths, ncol = 6) %>% data.frame()
+  paths <- data.frame(matrix(nrow = n_paths, ncol = 6)) 
   colnames(paths) <- c("x", "y", "xend", "yend", "proximity", "sign")
   path <- 1
   for(row in 1:nrow(proximity)) {
@@ -297,18 +261,3 @@ network_plot.cor_df <- function(rdf,
   ggplot() + plot_
 
 }
-
-
-# Arithmetic --------------------------------------------------------------
-
-# @export
-# 
-# Ops.cor_df <- function(e1, e2) {
-#   e1 <- as_matrix(e1)
-#   
-#   if(methods::is(e2, "cor_df"))
-#     e2 <- as_matrix(e2)
-# 
-#  x <- methods::callGeneric(e1, e2)
-#  as_cordf(x)
-# }

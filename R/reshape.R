@@ -25,7 +25,31 @@
 #' focus(x, -matches("Sepal"))  # Focus on correlations of non-Sepal 
 #'                              # variables with Sepal variables.
 focus <- function(x, ..., mirror = FALSE) {
-  focus_(x, .dots = lazyeval::lazy_dots(...), mirror = mirror)
+  focus_(
+    x = x, 
+    .dots = ..., 
+    ... = ...,
+    mirror = mirror
+    )
+}
+
+#' Returns a correlation table with the selected fields only
+#' 
+#' @param x A correlation table, class cor_df
+#' @param ... A list of variables in the correlation table
+#' 
+#' @examples 
+#' 
+#' dice(correlate(mtcars), mpg, wt, am)
+#' 
+#' @export
+dice <- function(x, ...) {
+  UseMethod("dice")
+}
+
+#' @export
+dice.cor_df <- function(x, ...) {
+  focus(x, ..., mirror = TRUE)
 }
 
 #' @export
@@ -36,7 +60,7 @@ focus_ <- function(x, ..., .dots, mirror) {
 
 #' Conditionally focus correlation data frame
 #' 
-#' Apply a predicate function to each colum of correlations. Columns that
+#' Apply a predicate function to each column of correlations. Columns that
 #' evaluate to TRUE will be included in a call to \code{\link{focus}}.
 #' 
 #' @param x Correlation data frame or object to be coerced to one via
@@ -79,7 +103,8 @@ focus_if.default <- function(x, .predicate, ..., mirror = FALSE) {
 #' @param na.rm Boolean. Whether rows with an NA correlation (originally the
 #'   matrix diagonal) should be dropped? Will automatically be set to TRUE if
 #'   mirror is FALSE.
-#' @return tbl with three colums (x and y variables, and their correlation)
+#' @param remove.dups Removes duplicate entries, without removing all NAs
+#' @return tbl with three columns (x and y variables, and their correlation)
 #' @export
 #' @examples
 #' x <- correlate(mtcars)
@@ -89,6 +114,43 @@ focus_if.default <- function(x, .predicate, ..., mirror = FALSE) {
 #' x <- shave(x)  # use shave to set upper triangle to NA and then...
 #' stretch(x, na.rm = FALSE)  # omit all NAs, therefore keeping each
 #'                              # correlation only once.
-stretch <- function(x, na.rm = FALSE) {
+stretch <- function(x, na.rm = FALSE, remove.dups =  FALSE) {
   UseMethod("stretch")
+}
+
+#' @export
+stretch.cor_df <- function(x, na.rm = FALSE, remove.dups =  FALSE) {
+  if(remove.dups) x <- shave(x)
+  row_name <- x$rowname
+  x <- x[, colnames(x) != "rowname"]
+  tb <- imap_dfr(x, ~tibble(x = .y, y = row_name, r = .x))
+  if(na.rm) tb <- tb[!is.na(tb$r), ]
+  if(remove.dups) {
+    stretch_unique(tb)
+  } else {
+    tb
+  }
+}
+
+stretch_unique <- function(.data,  x = x, y = y, val = r) {
+  val <- enquo(val)
+  y <- enquo(y)
+  x <- enquo(x)
+  row_names <- unique(.data[, as_label(y)][[1]])
+  td <- purrr::transpose(.data)
+  combos <- map_chr(
+    td,
+    ~paste0(sort(c(.x$x, .x$y)), collapse = " | ")
+  )
+  .data$combos <- combos
+  map_dfr(
+    unique(combos),
+    ~{ 
+      cr <- .data[.data$combos == .x, ]
+      vl <- cr[, as_label(val)][[1]]
+      if(nrow(cr) == 2) cr <- cr[!is.na(vl), ]
+      if(nrow(cr) != 1) stop("Error deduplicating stretched table")
+      cr[, colnames(cr) != "combos"]
+    }
+  )
 }

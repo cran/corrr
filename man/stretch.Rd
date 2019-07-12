@@ -4,7 +4,7 @@
 \alias{stretch}
 \title{Stretch correlation data frame into long format.}
 \usage{
-stretch(x, na.rm = FALSE)
+stretch(x, na.rm = FALSE, remove.dups = FALSE)
 }
 \arguments{
 \item{x}{cor_df. See \code{\link{correlate}}.}
@@ -12,9 +12,11 @@ stretch(x, na.rm = FALSE)
 \item{na.rm}{Boolean. Whether rows with an NA correlation (originally the
 matrix diagonal) should be dropped? Will automatically be set to TRUE if
 mirror is FALSE.}
+
+\item{remove.dups}{Removes duplicate entries, without removing all NAs}
 }
 \value{
-tbl with three colums (x and y variables, and their correlation)
+tbl with three columns (x and y variables, and their correlation)
 }
 \description{
 \code{stretch} is a specified implementation of tidyr::gather() to be applied

@@ -29,3 +29,13 @@ test_that("na.rm", {
     0
   )
 })
+
+test_that("retract works", {
+  cd <- as_cordf(retract(stretch(d)))
+  expect_equal(d, cd)
+  expect_is(d, "cor_df")
+})
+
+test_that("remove.dups works", {
+  expect_is(stretch(d, remove.dups = TRUE), "data.frame")
+})

@@ -1,60 +1,85 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-corrr <img src="man/figures/logo.png" align="right" />
-======================================================
 
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/corrr)](https://cran.r-project.org/package=corrr) [![Build Status](https://travis-ci.org/drsimonj/corrr.svg?branch=master)](https://travis-ci.org/drsimonj/corrr) [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/corrr)](http://cran.rstudio.com/web/packages/corrr/index.html)
+# corrr <img src="man/figures/logo.png" align="right" />
 
-corrr is a package for exploring **corr**elations in **R**. It focuses on creating and working with **data frames** of correlations (instead of matrices) that can be easily explored via corrr functions or by leveraging tools like those in the [tidyverse](http://tidyverse.org/). This, along with the primary corrr functions, is represented below:
+[![Build
+Status](https://travis-ci.org/tidymodels/corrr.svg?branch=master)](https://travis-ci.org/tidymodels/corrr)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/corrr)](https://cran.r-project.org/package=corrr)
+[![Coverage
+Status](https://img.shields.io/codecov/c/github/tidymodels/corrr/master.svg)](https://codecov.io/github/tidymodels/corrr?branch=master)
+
+corrr is a package for exploring **corr**elations in **R**. It focuses
+on creating and working with **data frames** of correlations (instead of
+matrices) that can be easily explored via corrr functions or by
+leveraging tools like those in the [tidyverse](http://tidyverse.org/).
+This, along with the primary corrr functions, is represented below:
 
 <img src='tools/readme/to-cor-df.png'>
 
 You can install:
 
--   the latest released version from CRAN with
+  - the latest released version from CRAN with
+
+<!-- end list -->
 
 ``` r
-install.packages("corrr")
+# install.packages("corrr")
 ```
 
--   the latest development version from github with
+  - the latest development version from GitHub with
+
+<!-- end list -->
 
 ``` r
-install.packages("devtools")  # run this line if devtools is not installed
-devtools::install_github("drsimonj/corrr")
+# install.packages("remotes") 
+# remotes::install_github("tidymodels/corrr")
 ```
 
-Using corrr
------------
+## Using corrr
 
-Using `corrr` typically starts with `correlate()`, which acts like the base correlation function `cor()`. It differs by defaulting to pairwise deletion, and returning a correlation data frame (`cor_df`) of the following structure:
+Using `corrr` typically starts with `correlate()`, which acts like the
+base correlation function `cor()`. It differs by defaulting to pairwise
+deletion, and returning a correlation data frame (`cor_df`) of the
+following structure:
 
--   A `tbl` with an additional class, `cor_df`
--   An extra "rowname" column
--   Standardised variances (the matrix diagonal) set to missing values (`NA`) so they can be ignored.
+  - A `tbl` with an additional class, `cor_df`
+  - An extra “rowname” column
+  - Standardized variances (the matrix diagonal) set to missing values
+    (`NA`) so they can be ignored.
 
 ### API
 
-The corrr API is designed with data pipelines in mind (e.g., to use `%>%` from the magrittr package). After `correlate()`, the primary corrr functions take a `cor_df` as their first argument, and return a `cor_df` or `tbl` (or output like a plot). These functions serve one of three purposes:
+The corrr API is designed with data pipelines in mind (e.g., to use
+`%>%` from the magrittr package). After `correlate()`, the primary corrr
+functions take a `cor_df` as their first argument, and return a `cor_df`
+or `tbl` (or output like a plot). These functions serve one of three
+purposes:
 
 Internal changes (`cor_df` out):
 
--   `shave()` the upper or lower triangle (set to NA).
--   `rearrange()` the columns and rows based on correlation strengths.
+  - `shave()` the upper or lower triangle (set to NA).
+  - `rearrange()` the columns and rows based on correlation strengths.
 
 Reshape structure (`tbl` or `cor_df` out):
 
--   `focus()` on select columns and rows.
--   `stretch()` into a long format.
+  - `focus()` on select columns and rows.
+  - `stretch()` into a long format.
 
-Output/visualisations (console/plot out):
+Output/visualizations (console/plot out):
 
--   `fashion()` the correlations for pretty printing.
--   `rplot()` the correlations with shapes in place of the values.
--   `network_plot()` the correlations in a network.
+  - `fashion()` the correlations for pretty printing.
+  - `rplot()` the correlations with shapes in place of the values.
+  - `network_plot()` the correlations in a network.
 
-Examples
---------
+## Databases and Spark
+
+The `correlate()` function also works with database tables. The function
+will automatically push the calculations of the correlations to the
+database, collect the results in R, and return the `cor_df` object. This
+allows for those results integrate with the rest of the `corrr` API.
+
+## Examples
 
 ``` r
 library(MASS)
@@ -85,17 +110,18 @@ class(x)
 #> [1] "cor_df"     "tbl_df"     "tbl"        "data.frame"
 x
 #> # A tibble: 6 x 7
-#>   rowname         v1        v2        v3         v4       v5       v6
-#>   <chr>        <dbl>     <dbl>     <dbl>      <dbl>    <dbl>    <dbl>
-#> 1 v1       NA          0.710     0.709     0.000195  0.0214   -0.0435
-#> 2 v2        0.710     NA         0.697    -0.0133    0.00928  -0.0338
-#> 3 v3        0.709      0.697    NA        -0.0253    0.00109  -0.0201
-#> 4 v4        0.000195  -0.0133   -0.0253   NA         0.421     0.442 
-#> 5 v5        0.0214     0.00928   0.00109   0.421    NA         0.425 
-#> 6 v6       -0.0435    -0.0338   -0.0201    0.442     0.425    NA
+#>   rowname       v1      v2      v3      v4       v5      v6
+#>   <chr>      <dbl>   <dbl>   <dbl>   <dbl>    <dbl>   <dbl>
+#> 1 v1      NA        0.696   0.705   0.0137  0.00906 -0.0467
+#> 2 v2       0.696   NA       0.697  -0.0133  0.0221  -0.0338
+#> 3 v3       0.705    0.697  NA      -0.0253 -0.0166  -0.0201
+#> 4 v4       0.0137  -0.0133 -0.0253 NA       0.452    0.442 
+#> 5 v5       0.00906  0.0221 -0.0166  0.452  NA        0.425 
+#> 6 v6      -0.0467  -0.0338 -0.0201  0.442   0.425   NA
 ```
 
-As a `tbl`, we can use functions from data frame packages like `dplyr`, `tidyr`, `ggplot2`:
+As a `tbl`, we can use functions from data frame packages like `dplyr`,
+`tidyr`, `ggplot2`:
 
 ``` r
 library(dplyr)
@@ -105,8 +131,8 @@ x %>% filter(v1 > .6)
 #> # A tibble: 2 x 7
 #>   rowname    v1     v2     v3      v4      v5      v6
 #>   <chr>   <dbl>  <dbl>  <dbl>   <dbl>   <dbl>   <dbl>
-#> 1 v2      0.710 NA      0.697 -0.0133 0.00928 -0.0338
-#> 2 v3      0.709  0.697 NA     -0.0253 0.00109 -0.0201
+#> 1 v2      0.696 NA      0.697 -0.0133  0.0221 -0.0338
+#> 2 v3      0.705  0.697 NA     -0.0253 -0.0166 -0.0201
 ```
 
 corrr functions work in pipelines (`cor_df` in; `cor_df` or `tbl` out):
@@ -120,22 +146,26 @@ x <- datasets::mtcars %>%
 #> 
 #> Correlation method: 'pearson'
 #> Missing treated using: 'pairwise.complete.obs'
+#> Registered S3 method overwritten by 'seriation':
+#>   method         from 
+#>   reorder.hclust gclus
        
 fashion(x)
-#>   rowname   am drat gear   wt disp  mpg   hp qsec carb
-#> 1      am                                             
-#> 2    drat  .71                                        
-#> 3    gear  .79  .70                                   
-#> 4      wt -.69 -.71 -.58                              
-#> 5    disp -.59 -.71 -.56  .89                         
-#> 6     mpg  .60  .68  .48 -.87 -.85                    
-#> 7      hp -.24 -.45 -.13  .66  .79 -.78               
-#> 8    qsec -.23  .09 -.21 -.17 -.43  .42 -.71          
-#> 9    carb  .06 -.09  .27  .43  .39 -.55  .75 -.66
+#>   rowname  mpg drat   am gear qsec carb   hp   wt disp
+#> 1     mpg                                             
+#> 2    drat  .68                                        
+#> 3      am  .60  .71                                   
+#> 4    gear  .48  .70  .79                              
+#> 5    qsec  .42  .09 -.23 -.21                         
+#> 6    carb -.55 -.09  .06  .27 -.66                    
+#> 7      hp -.78 -.45 -.24 -.13 -.71  .75               
+#> 8      wt -.87 -.71 -.69 -.58 -.17  .43  .66          
+#> 9    disp -.85 -.71 -.59 -.56 -.43  .39  .79  .89
 rplot(x)
+#> Don't know how to automatically pick scale for object of type noquote. Defaulting to continuous.
 ```
 
-![](tools/readme/combination-1.png)
+![](tools/readme/combination-1.png)<!-- -->
 
 ``` r
 
@@ -147,4 +177,4 @@ datasets::airquality %>%
 #> Missing treated using: 'pairwise.complete.obs'
 ```
 
-![](tools/readme/combination-2.png)
+![](tools/readme/combination-2.png)<!-- -->
