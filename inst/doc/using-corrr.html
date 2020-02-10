@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <meta name="author" content="Simon Jackson" />
 
-<meta name="date" content="2019-07-12" />
+<meta name="date" content="2020-02-10" />
 
 <title>Using corrr</title>
 
@@ -96,7 +96,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -303,7 +303,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Using corrr</h1>
 <h4 class="author">Simon Jackson</h4>
-<h4 class="date">2019-07-12</h4>
+<h4 class="date">2020-02-10</h4>
 
 
 
@@ -321,20 +321,20 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb1-2" data-line-number="2">d &lt;-<span class="st"> </span><span class="kw">correlate</span>(mtcars, <span class="dt">quiet =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3">d</a>
 <a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co">#&gt; # A tibble: 11 x 12</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co">#&gt;    rowname    mpg    cyl   disp     hp    drat     wt    qsec     vs</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co">#&gt;    &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co">#&gt;  1 mpg     NA     -0.852 -0.848 -0.776  0.681  -0.868  0.419   0.664</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co">#&gt;  2 cyl     -0.852 NA      0.902  0.832 -0.700   0.782 -0.591  -0.811</span></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co">#&gt;  3 disp    -0.848  0.902 NA      0.791 -0.710   0.888 -0.434  -0.710</span></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co">#&gt;  4 hp      -0.776  0.832  0.791 NA     -0.449   0.659 -0.708  -0.723</span></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co">#&gt;  5 drat     0.681 -0.700 -0.710 -0.449 NA      -0.712  0.0912  0.440</span></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co">#&gt;  6 wt      -0.868  0.782  0.888  0.659 -0.712  NA     -0.175  -0.555</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co">#&gt;  7 qsec     0.419 -0.591 -0.434 -0.708  0.0912 -0.175 NA       0.745</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co">#&gt;  8 vs       0.664 -0.811 -0.710 -0.723  0.440  -0.555  0.745  NA    </span></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt;  9 am       0.600 -0.523 -0.591 -0.243  0.713  -0.692 -0.230   0.168</span></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co">#&gt; 10 gear     0.480 -0.493 -0.556 -0.126  0.700  -0.583 -0.213   0.206</span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co">#&gt; 11 carb    -0.551  0.527  0.395  0.750 -0.0908  0.428 -0.656  -0.570</span></a>
-<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co">#&gt; # … with 3 more variables: am &lt;dbl&gt;, gear &lt;dbl&gt;, carb &lt;dbl&gt;</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co">#&gt;    rowname    mpg    cyl   disp     hp    drat     wt    qsec     vs      am</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co">#&gt;    &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co">#&gt;  1 mpg     NA     -0.852 -0.848 -0.776  0.681  -0.868  0.419   0.664  0.600 </span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co">#&gt;  2 cyl     -0.852 NA      0.902  0.832 -0.700   0.782 -0.591  -0.811 -0.523 </span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co">#&gt;  3 disp    -0.848  0.902 NA      0.791 -0.710   0.888 -0.434  -0.710 -0.591 </span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co">#&gt;  4 hp      -0.776  0.832  0.791 NA     -0.449   0.659 -0.708  -0.723 -0.243 </span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co">#&gt;  5 drat     0.681 -0.700 -0.710 -0.449 NA      -0.712  0.0912  0.440  0.713 </span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co">#&gt;  6 wt      -0.868  0.782  0.888  0.659 -0.712  NA     -0.175  -0.555 -0.692 </span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co">#&gt;  7 qsec     0.419 -0.591 -0.434 -0.708  0.0912 -0.175 NA       0.745 -0.230 </span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co">#&gt;  8 vs       0.664 -0.811 -0.710 -0.723  0.440  -0.555  0.745  NA      0.168 </span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt;  9 am       0.600 -0.523 -0.591 -0.243  0.713  -0.692 -0.230   0.168 NA     </span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co">#&gt; 10 gear     0.480 -0.493 -0.556 -0.126  0.700  -0.583 -0.213   0.206  0.794 </span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co">#&gt; 11 carb    -0.551  0.527  0.395  0.750 -0.0908  0.428 -0.656  -0.570  0.0575</span></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co">#&gt; # … with 2 more variables: gear &lt;dbl&gt;, carb &lt;dbl&gt;</span></a></code></pre></div>
 </div>
 <div id="why-a-correlation-data-frame" class="section level2">
 <h2>Why a correlation data frame?</h2>
@@ -345,12 +345,12 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co"># another variable.</span></a>
 <a class="sourceLine" id="cb2-5" data-line-number="5">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(cyl <span class="op">&gt;</span><span class="st"> </span><span class="fl">.7</span>)</a>
 <a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt; # A tibble: 3 x 12</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt;   rowname    mpg   cyl   disp     hp   drat     wt   qsec     vs     am</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt;   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt; 1 disp    -0.848 0.902 NA      0.791 -0.710  0.888 -0.434 -0.710 -0.591</span></a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#&gt; 2 hp      -0.776 0.832  0.791 NA     -0.449  0.659 -0.708 -0.723 -0.243</span></a>
-<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co">#&gt; 3 wt      -0.868 0.782  0.888  0.659 -0.712 NA     -0.175 -0.555 -0.692</span></a>
-<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co">#&gt; # … with 2 more variables: gear &lt;dbl&gt;, carb &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt;   rowname    mpg   cyl   disp     hp   drat     wt   qsec     vs     am   gear</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt;   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9"><span class="co">#&gt; 1 disp    -0.848 0.902 NA      0.791 -0.710  0.888 -0.434 -0.710 -0.591 -0.556</span></a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="co">#&gt; 2 hp      -0.776 0.832  0.791 NA     -0.449  0.659 -0.708 -0.723 -0.243 -0.126</span></a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"><span class="co">#&gt; 3 wt      -0.868 0.782  0.888  0.659 -0.712 NA     -0.175 -0.555 -0.692 -0.583</span></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co">#&gt; # … with 1 more variable: carb &lt;dbl&gt;</span></a>
 <a class="sourceLine" id="cb2-13" data-line-number="13"></a>
 <a class="sourceLine" id="cb2-14" data-line-number="14"><span class="co"># Select the mpg, cyl and disp columns (and rowname)</span></a>
 <a class="sourceLine" id="cb2-15" data-line-number="15">d <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(rowname, mpg, cyl, disp)</a>
@@ -461,6 +461,9 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>For other resources about how to use <code>corrr</code>, you’ll find plenty of posts explaining functions at <a href="https://drsimonj.svbtle.com/">blogR</a>, or keep up to date with these on Twitter by following <a href="https://twitter.com/drsimonj">@drsimonj</a>.</p>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
