@@ -21,7 +21,8 @@ that can be coerced to one (see \code{\link{as_cordf}}).}
 \item{min_cor}{Number from 0 to 1 indicating the minimum value of
 correlations (in absolute terms) to plot.}
 
-\item{legend}{Boolean indicating whether a legend mapping the colors to the correlations should be displayed.}
+\item{legend}{Boolean indicating whether a legend mapping the colors to the
+correlations should be displayed.}
 
 \item{colours, colors}{Vector of colors to use for n-color gradient.}
 
@@ -29,7 +30,7 @@ correlations (in absolute terms) to plot.}
 via \code{\link[ggrepel]{geom_text_repel}} instead of \code{\link[ggplot2]{geom_text}}}
 
 \item{curved}{Should the paths be curved? If TRUE, paths are added via
-\code{\link[ggplot2]{geom_curve}}; if FALSE, via
+\code{\link[ggplot2:geom_segment]{geom_curve}}; if FALSE, via
 \code{\link[ggplot2]{geom_segment}}}
 }
 \description{

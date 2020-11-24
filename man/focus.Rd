@@ -12,8 +12,8 @@ focus_(x, ..., .dots, mirror)
 \arguments{
 \item{x}{cor_df. See \code{\link{correlate}}.}
 
-\item{...}{One or more unquoted expressions separated by commas. Variable 
-names can be used as if they were positions in the data frame, so 
+\item{...}{One or more unquoted expressions separated by commas. Variable
+names can be used as if they were positions in the data frame, so
 expressions like `x:y`` can be used to select a range of variables.}
 
 \item{mirror}{Boolean. Whether to mirror the selected columns in the rows or
@@ -22,7 +22,7 @@ not.}
 \item{.dots}{Use focus_ to do standard evaluations. See \code{\link[dplyr]{select}}.}
 }
 \value{
-A tbl or, if mirror = TRUE, a cor_df (see \code{\link{correlate}}).
+A tbl or, if mirror = TRUE, a \code{cor_df} (see \code{\link{correlate}}).
 }
 \description{
 Convenience function to select a set of variables from a correlation matrix
@@ -40,6 +40,6 @@ focus(x, mpg, cyl)  # Focus on correlations of mpg and cyl with all other variab
 focus(x, -disp, - mpg, mirror = TRUE)  # Remove disp and mpg from columns and rows
 
 x <- correlate(iris[-5])
-focus(x, -matches("Sepal"))  # Focus on correlations of non-Sepal 
+focus(x, -matches("Sepal"))  # Focus on correlations of non-Sepal
                              # variables with Sepal variables.
 }

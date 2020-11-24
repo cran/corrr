@@ -15,19 +15,19 @@ library(dplyr)
 # another variable.
 d %>% filter(cyl > .7)
 
-# Select the mpg, cyl and disp columns (and rowname)
-d %>% select(rowname, mpg, cyl, disp)
+# Select the mpg, cyl and disp columns (and term)
+d %>% select(term, mpg, cyl, disp)
 
 # Combine above in a single pipeline
 d %>%
   filter(cyl > .7) %>% 
-  select(rowname, mpg, cyl, disp)
+  select(term, mpg, cyl, disp)
 
 ## ---- warning = FALSE, message = FALSE----------------------------------------
 # Compute mean of each column
 library(purrr)
 d %>% 
-  select(-rowname) %>% 
+  select(-term) %>% 
   map_dbl(~ mean(., na.rm = TRUE))
 
 ## -----------------------------------------------------------------------------

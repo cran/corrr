@@ -2,10 +2,10 @@
 
 #' @export
 as_matrix.cor_df <- function(x, diagonal) {
-  
-  # Separate rownames
-  row_name <- x$rowname
-  x <- x[, colnames(x) != "rowname"]
+
+  # Separate term names
+  row_name <- x$term
+  x <- x[colnames(x) != "term"]
   # Convert to matrix and set rownames
   class(x) <- "data.frame"
   x <- as.matrix(x)
@@ -19,45 +19,42 @@ as_matrix.cor_df <- function(x, diagonal) {
 
 #' @export
 shave.cor_df <- function(x, upper = TRUE) {
-  
-  # Separate rownames
-  row_name <- x$rowname
-  x <- x[, colnames(x) != "rowname"]
-  
+
+  # Separate term names
+  row_name <- x$term
+  x <- x[colnames(x) != "term"]
+
   # Remove upper matrix
   if (upper) {
     x[upper.tri(x)] <- NA
   } else {
     x[lower.tri(x)] <- NA
   }
-  
-  # Reappend rownames and class
-  x <-  first_col(x, row_name)
-  class(x) <- c("cor_df", class(x))
-  x
+
+  # Reappend terms and class
+  new_cordf(x, row_name)
 }
 
 #' @export
 rearrange.cor_df <- function(x, method = "PCA", absolute = TRUE) {
-  
+
   # Convert to original matrix
   m <- as_matrix(x, diagonal = 1)
-  
-  if (absolute) abs(m) 
-  
+
+  if (absolute) abs(m)
+
   if (method %in% c("BEA", "BEA_TSP", "PCA", "PCA_angle")) {
     ord <- seriation::seriate(m, method = method)
   } else {
     ord <- seriation::seriate(dist(m), method = method)
   }
-  
+
   ord <- seriation::get_order(ord)
-  
+
   # Arrange and return matrix
-  # "c(1, 1 + ..." to handle rowname column
+  # "c(1, 1 + ..." to handle term column
   x <- x[ord, c(1, 1 + ord)]
-  class(x) <- c("cor_df", class(x))
-  return(x)
+  new_cordf(x)
 }
 
 
@@ -66,26 +63,25 @@ rearrange.cor_df <- function(x, method = "PCA", absolute = TRUE) {
 #' @export
 focus_.cor_df <- function(x, ..., .dots = NULL, mirror = FALSE) {
   vars <- enquos(...)
-  row_name <- x$rowname
+  row_name <- x$term
   if(length(vars) > 0) {
-    x <-  dplyr::select(x, !!! vars)  
+    x <-  dplyr::select(x, !!! vars)
   } else {
     x <-  dplyr::select(x, .dots)
   }
   # Get selected column names and
-  # append back rownames if necessary
+  # append back term names if necessary
   vars <- colnames(x)
-  if ("rowname" %in% vars) {
-    vars <- vars[vars != "rowname"]
+  if ("term" %in% vars) {
+    vars <- vars[vars != "term"]
   } else {
     x <-  first_col(x, row_name)
   }
-  
+
   # Exclude these or others from the rows
-  vars <- x$rowname %in% vars
+  vars <- x$term %in% vars
   if (mirror) {
-    x <- x[vars, ]
-    class(x) <- c("cor_df", class(x))
+    x <- new_cordf(x[vars, ])
   } else {
     x <- x[!vars, ]
   }
@@ -94,15 +90,15 @@ focus_.cor_df <- function(x, ..., .dots = NULL, mirror = FALSE) {
 
 #' @export
 focus_if.cor_df <- function(x, .predicate, ..., mirror = FALSE) {
-  
+
   # Identify which variables to keep
   to_keep <- map_lgl(
-    x[, colnames(x) != "rowname"], 
+    x[colnames(x) != "term"],
     .predicate, ...
-    )
+  )
 
   to_keep <- names(to_keep)[!is.na(to_keep) & to_keep]
-  
+
   if (!length(to_keep)) {
     stop("No variables were TRUE given the function.")
   }
@@ -118,19 +114,27 @@ rplot.cor_df <- function(rdf,
                          shape = 16,
                          colours = c("indianred2", "white", "skyblue1"),
                          print_cor = FALSE,
-                         colors) {
-  
+                         colors,
+                         .order = c("default", "alphabet")) {
+
+  .order <- match.arg(.order)
+
   if (!missing(colors))
     colours <- colors
-  
+
   # Store order for factoring the variables
-  row_order <- rdf$rowname
-  
+  row_order <- rdf$term
+
   # Convert data to relevant format for plotting
-  pd <- stretch(rdf, na.rm = TRUE) 
+  pd <- stretch(rdf, na.rm = TRUE)
   pd$size = abs(pd$r)
   pd$label = fashion(pd$r)
-  
+
+  if(.order == "default") {
+    pd$x <- factor(pd$x, levels = row_order)
+    pd$y <- factor(pd$y, levels = rev(row_order))
+  }
+
   plot_ <- list(
     # Geoms
     geom_point(shape = shape),
@@ -143,12 +147,12 @@ rplot.cor_df <- function(rdf,
     if (legend)  labs(colour = NULL),
     if (!legend) theme(legend.position = "none")
   )
-  
+
   ggplot(pd, aes_string(x = "x", y = "y", color = "r",
                         size = "size", alpha = "size",
                         label = "label")) +
     plot_
-  
+
   #   # plot
   #   ggplot(aes_string(x = "x", y = "y", color = "r",
   #                                       size = "size", alpha = "size",
@@ -157,15 +161,15 @@ rplot.cor_df <- function(rdf,
   #   scale_colour_gradientn(limits = c(-1, 1), colors = colours) +
   #   labs(x = "", y ="") +
   #   theme_classic()
-  # 
+  #
   # if (print_cor) {
   #   p <- p + geom_text(color = "black", size = 3, show.legend = FALSE)
   # }
-  # 
+  #
   # if (!legend) {
   #   p <- p + theme(legend.position = "none")
   # }
-  # 
+  #
   # p
 }
 
@@ -177,38 +181,72 @@ network_plot.cor_df <- function(rdf,
                                 repel = TRUE,
                                 curved = TRUE,
                                 colors) {
-  
+
   if (min_cor < 0 || min_cor > 1) {
     stop ("min_cor must be a value ranging from zero to one.")
   }
-  
+
   if (!missing(colors))
     colours <- colors
-  
+
   rdf <-  as_matrix(rdf, diagonal = 1)
-  distance <- sign(rdf) * (1 - abs(rdf))
-  
-  # Use multidimensional Scaling to obtain x and y coordinates for points.
-  points <- data.frame(stats::cmdscale(abs(distance)))
+  distance <- 1 - abs(rdf)
+
+  points <- if (ncol(rdf) == 1) {
+    # 1 var: a single central point
+    matrix(c(0, 0), ncol = 2, dimnames = list(colnames(rdf)))
+  } else if (ncol(rdf) == 2) {
+    # 2 vars: 2 opposing points
+    matrix(c(0, -0.1, 0, 0.1), ncol = 2, dimnames = list(colnames(rdf)))
+  } else {
+    # More than 2 vars: multidimensional scaling to obtain x and y coordinates for points.
+    suppressWarnings(stats::cmdscale(distance, k = 2))
+  }
+
+  if(ncol(points) < 2){
+
+    cont_flag <- FALSE
+    shift_matrix <- matrix(1, nrow = nrow(rdf),
+                           ncol = ncol(rdf))
+    diag(shift_matrix) <- 0
+
+    for (shift in 10^(-6:-1)){
+      shifted_distance <- distance + shift * shift_matrix
+      points <- suppressWarnings(stats::cmdscale(shifted_distance))
+
+      if(ncol(points) > 1){
+        cont_flag <- TRUE
+        break
+      }
+    }
+
+    if(!cont_flag) rlang::abort("Can't generate network plot.\nAttempts to generate 2-d coordinates failed.")
+
+    rlang::warn("Plot coordinates derived from correlation matrix have dimension < 2.\nPairwise distances have been adjusted to facilitate plotting.")
+  }
+
+
+
+  points <- data.frame(points)
   colnames(points) <-  c("x", "y")
   points$id <- rownames(points)
-  
+
   # Create a proximity matrix of the paths to be plotted.
   proximity <- abs(rdf)
   proximity[upper.tri(proximity)] <- NA
   diag(proximity) <- NA
   proximity[proximity < min_cor] <- NA
-  
+
   # Produce a data frame of data needed for plotting the paths.
   n_paths <- sum(!is.na(proximity))
-  paths <- data.frame(matrix(nrow = n_paths, ncol = 6)) 
+  paths <- data.frame(matrix(nrow = n_paths, ncol = 6))
   colnames(paths) <- c("x", "y", "xend", "yend", "proximity", "sign")
   path <- 1
   for(row in 1:nrow(proximity)) {
     for(col in 1:ncol(proximity)) {
       path_proximity <- proximity[row, col]
       if (!is.na(path_proximity)) {
-        path_sign <- sign(distance[row, col])
+        path_sign <- sign(rdf[row, col])
         x    <- points$x[row]
         y    <- points$y[row]
         xend <- points$x[col]
@@ -218,24 +256,24 @@ network_plot.cor_df <- function(rdf,
       }
     }
   }
-  
+
   plot_ <- list(
     # For plotting paths
     if (curved) geom_curve(data = paths,
                            aes(x = x, y = y, xend = xend, yend = yend,
                                alpha = proximity, size = proximity,
-                               colour = proximity*sign)), 
+                               colour = proximity*sign)),
     if (!curved) geom_segment(data = paths,
                               aes(x = x, y = y, xend = xend, yend = yend,
                                   alpha = proximity, size = proximity,
-                                  colour = proximity*sign)), 
+                                  colour = proximity*sign)),
     scale_alpha(limits = c(0, 1)),
     scale_size(limits = c(0, 1)),
     scale_colour_gradientn(limits = c(-1, 1), colors = colours),
     # Plot the points
     geom_point(data = points,
-                        aes(x, y),
-                        size = 3, shape = 19, colour = "white"),
+               aes(x, y),
+               size = 3, shape = 19, colour = "white"),
     # Plot variable labels
     if (repel) ggrepel::geom_text_repel(data = points,
                                         aes(x, y, label = id),
@@ -247,9 +285,9 @@ network_plot.cor_df <- function(rdf,
                           fontface = 'bold', size = 5),
     # expand the axes to add space for curves
     expand_limits(x = c(min(points$x) - .1,
-                                 max(points$x) + .1),
-                           y = c(min(points$y) - .1,
-                                 max(points$y) + .1)
+                        max(points$x) + .1),
+                  y = c(min(points$y) - .1,
+                        max(points$y) + .1)
     ),
     # Theme and legends
     theme_void(),

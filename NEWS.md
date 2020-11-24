@@ -1,3 +1,21 @@
+# corrr 0.4.3
+
+- Fix EOL issues and class attribute (@krlmlr, #93 and #90)
+
+- Handle correlation of exactly zero or 1 in `network_plot()` (@s-scherrer, #89)
+
+- Add `.order` argument to `rplot()` with options "default" and "alphabet" plus improved documentation (@mattwarkentin, #99 and @thisisdaryn, #114)
+
+- Make `network_plot()` more robust, for example to highly correlated data (@thisisdaryn, #107)
+
+- New `colpair_map()` allows for column comparisons using the values returned by an arbitrary function (@jameslairdsmith, #94).
+
+- `correlate()` now works with single-column data.frames and numeric vectors (@antoine-sachet, #122). Note the `diagonal` argument is ignored in these 2 cases.
+  
+- `network_plot()` now works with `cor_df` objects with only 1 or 2 columns (@antoine-sachet, #122)
+
+- The first column of a `cor_df` object is now named "term". Previously it was named "rowname" (@thisisdaryn, #117).
+
 # corrr 0.4.2
 
 - Updates to work with tibble 3.0.0  and dplyr 1.0.0
@@ -5,7 +23,6 @@
 # corrr 0.4.1
 
 - Updates maintainer
-
 
 # corrr 0.4.0
 
@@ -43,7 +60,7 @@
 
 ## Small breaking changes
 
-The `diagonal` argument of `as_matrix` and `as_matrix.cor_df` is now an optional argument rather than set to `1` by default [#52](https://github.com/drsimonj/corrr/issues/52)
+The `diagonal` argument of `as_matrix` and `as_matrix.cor_df` is now an optional argument rather than set to `1` by default [#52](https://github.com/tidymodels/corrr/issues/52)
 
 ## New Functions
 
