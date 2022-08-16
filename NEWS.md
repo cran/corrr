@@ -1,3 +1,13 @@
+# corrr 0.4.4
+
+- Make `colpair_map()` more robust to input column names, with the exception of ".data" and ".env" (@jameslairdsmith, #131).
+
+- `correlate()` now removes non-numeric columns from data frame inputs (@thisisdaryn, #139).
+
+- `autoplot.cor_df()` method have been added for quick generation of correlation chart.
+
+- `network_plot()` now allows the user the option to map the color range to the range of correlations that are in the input `rdf` (@thisisdaryn, #158). 
+
 # corrr 0.4.3
 
 - Fix EOL issues and class attribute (@krlmlr, #93 and #90)

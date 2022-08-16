@@ -45,9 +45,10 @@ rather than a matrix. See details below. Additional adjustment include the
 use of pairwise deletion by default.
 }
 \details{
-\itemize{
 This function returns a correlation matrix as a correlation data frame in
 the following format:
+
+\itemize{
 \item A tibble (see \code{\link[tibble]{tibble}})
 \item An additional class, "cor_df"
 \item A "term" column
@@ -55,8 +56,21 @@ the following format:
 default (\code{NA}) so they can be ignored in calculations.
 }
 
+The \code{use} argument and its possible values are inherited from \code{stats::cor()}:
+
+\itemize{
+\item "everything": NAs will propagate conceptually, i.e. a resulting value will be NA whenever one of its contributing observations is NA
+\item "all.obs": the presence of missing observations will produce an error
+\item "complete.obs": correlations will be computed from complete observations, with an error being raised if there are no complete cases.
+\item "na.or.complete": correlations will be computed from complete observations, returning an NA if there are no complete cases.
+\item "pairwise.complete.obs": the correlation between each pair of variables is computed using all complete pairs of those particular variables.
+}
+
 As of version 0.4.3, the first column of a \code{cor_df} object is named "term".
 In previous versions this first column was named "rowname".
+
+There is a \code{\link[ggplot2:autoplot]{ggplot2::autoplot()}} method for quickly visualizing the
+correlation matrix, for more information see \code{\link[=autoplot.cor_df]{autoplot.cor_df()}}.
 }
 \examples{
 \dontrun{
@@ -66,7 +80,6 @@ correlate(iris)
 correlate(iris[-5])
 
 correlate(mtcars)
-
 \dontrun{
 
 # Also supports DB backend and collects results into memory
@@ -77,7 +90,6 @@ mtcars_tbl <- copy_to(sc, mtcars)
 mtcars_tbl \%>\%
   correlate(use = "pairwise.complete.obs", method = "spearman")
 spark_disconnect(sc)
-
 }
 
 }

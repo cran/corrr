@@ -20,7 +20,7 @@ A correlation data frame (\code{cor_df}).
 }
 \description{
 \code{colpair_map()} transforms a data frame by applying a function to each pair
-of its columns.The result is a correlation data frame (see
+of its columns. The result is a correlation data frame (see
 \code{\link{correlate}} for details).
 }
 \examples{
@@ -28,10 +28,9 @@ of its columns.The result is a correlation data frame (see
 colpair_map(mtcars, cov)
 
 ## Function to get the p-value from a t-test:
-calc_p_value <- function(vec_a, vec_b){
+calc_p_value <- function(vec_a, vec_b) {
   t.test(vec_a, vec_b)$p.value
 }
 
 colpair_map(mtcars, calc_p_value)
-
 }

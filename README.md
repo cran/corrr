@@ -1,15 +1,15 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# corrr <a href='https://corrr.tidymodels.org'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# corrr <a href='https://corrr.tidymodels.org'><img src='man/figures/logo.png' style='float: right'  height="139" /></a>
 
-[![R build
-status](https://github.com/tidymodels/corrr/workflows/R-CMD-check/badge.svg)](https://github.com/tidymodels/corrr/actions)
-[![Build
-Status](https://travis-ci.org/tidymodels/corrr.svg?branch=master)](https://travis-ci.org/tidymodels/corrr)
-[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/corrr)](https://cran.r-project.org/package=corrr)
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/tidymodels/corrr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidymodels/corrr/actions/workflows/R-CMD-check.yaml)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/corrr)](https://cran.r-project.org/package=corrr)
 [![Codecov test
-coverage](https://codecov.io/gh/tidymodels/corrr/branch/master/graph/badge.svg)](https://codecov.io/gh/tidymodels/corrr?branch=master)
+coverage](https://codecov.io/gh/tidymodels/corrr/branch/main/graph/badge.svg)](https://app.codecov.io/gh/tidymodels/corrr?branch=main)
+<!-- badges: end -->
 
 corrr is a package for exploring **corr**elations in **R**. It focuses
 on creating and working with **data frames** of correlations (instead of
@@ -22,21 +22,17 @@ corrr functions, is represented below:
 
 You can install:
 
-  - the latest released version from CRAN with
-
-<!-- end list -->
+-   the latest released version from CRAN with
 
 ``` r
-# install.packages("corrr")
+install.packages("corrr")
 ```
 
-  - the latest development version from GitHub with
-
-<!-- end list -->
+-   the latest development version from GitHub with
 
 ``` r
 # install.packages("remotes") 
-# remotes::install_github("tidymodels/corrr")
+remotes::install_github("tidymodels/corrr")
 ```
 
 ## Using corrr
@@ -46,9 +42,9 @@ base correlation function `cor()`. It differs by defaulting to pairwise
 deletion, and returning a correlation data frame (`cor_df`) of the
 following structure:
 
-  - A `tbl` with an additional class, `cor_df`
-  - An extra “term” column
-  - Standardized variances (the matrix diagonal) set to missing values
+-   A `tbl` with an additional class, `cor_df`
+-   An extra “term” column
+-   Standardized variances (the matrix diagonal) set to missing values
     (`NA`) so they can be ignored.
 
 ### API
@@ -61,19 +57,19 @@ purposes:
 
 Internal changes (`cor_df` out):
 
-  - `shave()` the upper or lower triangle (set to NA).
-  - `rearrange()` the columns and rows based on correlation strengths.
+-   `shave()` the upper or lower triangle (set to NA).
+-   `rearrange()` the columns and rows based on correlation strengths.
 
 Reshape structure (`tbl` or `cor_df` out):
 
-  - `focus()` on select columns and rows.
-  - `stretch()` into a long format.
+-   `focus()` on select columns and rows.
+-   `stretch()` into a long format.
 
 Output/visualizations (console/plot out):
 
-  - `fashion()` the correlations for pretty printing.
-  - `rplot()` the correlations with shapes in place of the values.
-  - `network_plot()` the correlations in a network.
+-   `fashion()` the correlations for pretty printing.
+-   `rplot()` the correlations with shapes in place of the values.
+-   `network_plot()` the correlations in a network.
 
 ## Databases and Spark
 
@@ -112,15 +108,15 @@ x <- correlate(d)
 class(x)
 #> [1] "cor_df"     "tbl_df"     "tbl"        "data.frame"
 x
-#> # A tibble: 6 x 7
-#>   term        v1      v2      v3      v4       v5      v6
-#>   <chr>    <dbl>   <dbl>   <dbl>   <dbl>    <dbl>   <dbl>
-#> 1 v1    NA        0.696   0.705   0.0137  0.00906 -0.0467
-#> 2 v2     0.696   NA       0.697  -0.0133  0.0221  -0.0338
-#> 3 v3     0.705    0.697  NA      -0.0253 -0.0166  -0.0201
-#> 4 v4     0.0137  -0.0133 -0.0253 NA       0.452    0.442 
-#> 5 v5     0.00906  0.0221 -0.0166  0.452  NA        0.425 
-#> 6 v6    -0.0467  -0.0338 -0.0201  0.442   0.425   NA
+#> # A tibble: 6 × 7
+#>   term        v1       v2       v3       v4       v5      v6
+#>   <chr>    <dbl>    <dbl>    <dbl>    <dbl>    <dbl>   <dbl>
+#> 1 v1    NA        0.684    0.716    0.00187 -0.00769 -0.0237
+#> 2 v2     0.684   NA        0.702   -0.0248   0.00495 -0.0161
+#> 3 v3     0.716    0.702   NA       -0.00171  0.0205  -0.0566
+#> 4 v4     0.00187 -0.0248  -0.00171 NA        0.452    0.442 
+#> 5 v5    -0.00769  0.00495  0.0205   0.452   NA        0.424 
+#> 6 v6    -0.0237  -0.0161  -0.0566   0.442    0.424   NA
 ```
 
 **NOTE: Previous to corrr 0.4.3, the first column of a `cor_df`
@@ -135,11 +131,11 @@ library(dplyr)
 
 # Filter rows by correlation size
 x %>% filter(v1 > .6)
-#> # A tibble: 2 x 7
-#>   term     v1     v2     v3      v4      v5      v6
-#>   <chr> <dbl>  <dbl>  <dbl>   <dbl>   <dbl>   <dbl>
-#> 1 v2    0.696 NA      0.697 -0.0133  0.0221 -0.0338
-#> 2 v3    0.705  0.697 NA     -0.0253 -0.0166 -0.0201
+#> # A tibble: 2 × 7
+#>   term     v1     v2     v3       v4      v5      v6
+#>   <chr> <dbl>  <dbl>  <dbl>    <dbl>   <dbl>   <dbl>
+#> 1 v2    0.684 NA      0.702 -0.0248  0.00495 -0.0161
+#> 2 v3    0.716  0.702 NA     -0.00171 0.0205  -0.0566
 ```
 
 corrr functions work in pipelines (`cor_df` in; `cor_df` or `tbl` out):
@@ -150,12 +146,9 @@ x <- datasets::mtcars %>%
        focus(-cyl, -vs, mirror = TRUE) %>%  # Focus on cor_df without 'cyl' and 'vs'
        rearrange() %>%  # rearrange by correlations
        shave() # Shave off the upper triangle for a clean result
-#> 
-#> Correlation method: 'pearson'
-#> Missing treated using: 'pairwise.complete.obs'
-#> Registered S3 method overwritten by 'seriation':
-#>   method         from 
-#>   reorder.hclust gclus
+#> Correlation computed with
+#> • Method: 'pearson'
+#> • Missing treated using: 'pairwise.complete.obs'
        
 fashion(x)
 #>   term  mpg drat   am gear qsec carb   hp   wt disp
@@ -169,19 +162,39 @@ fashion(x)
 #> 8   wt -.87 -.71 -.69 -.58 -.17  .43  .66          
 #> 9 disp -.85 -.71 -.59 -.56 -.43  .39  .79  .89
 rplot(x)
-#> Don't know how to automatically pick scale for object of type noquote. Defaulting to continuous.
 ```
 
 ![](man/figures/README-combination-1.png)<!-- -->
 
 ``` r
-
 datasets::airquality %>% 
   correlate() %>% 
   network_plot(min_cor = .2)
-#> 
-#> Correlation method: 'pearson'
-#> Missing treated using: 'pairwise.complete.obs'
+#> Correlation computed with
+#> • Method: 'pearson'
+#> • Missing treated using: 'pairwise.complete.obs'
 ```
 
 ![](man/figures/README-combination-2.png)<!-- -->
+
+## Contributing
+
+This project is released with a [Contributor Code of
+Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
+
+-   For questions and discussions about tidymodels packages, modeling,
+    and machine learning, please [post on RStudio
+    Community](https://community.rstudio.com/new-topic?category_id=15&tags=tidymodels,question).
+
+-   If you think you have encountered a bug, please [submit an
+    issue](https://github.com/tidymodels/corrr/issues).
+
+-   Either way, learn how to create and share a
+    [reprex](https://reprex.tidyverse.org/articles/articles/learn-reprex.html)
+    (a minimal, reproducible example), to clearly communicate about your
+    code.
+
+-   Check out further details on [contributing guidelines for tidymodels
+    packages](https://www.tidymodels.org/contribute/) and [how to get
+    help](https://www.tidymodels.org/help/).

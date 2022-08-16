@@ -49,7 +49,8 @@ fashion.default <- function(x, decimals = 2, leading_zeros = FALSE, na_print = "
         longest <- max(n_chars)
         tmp1 <- purrr::map_chr(
           (longest - n_chars),
-          ~paste(rep(" ", .), collapse = ""))
+          ~ paste(rep(" ", .), collapse = "")
+        )
         tmp <- paste0(tmp1, tmp)
       }
 
@@ -124,6 +125,10 @@ rplot.default <- function(rdf, ...) {
 #'
 #' @param min_cor Number from 0 to 1 indicating the minimum value of
 #'   correlations (in absolute terms) to plot.
+#' @param legend How should the colors and legend for the correlation values be
+#' displayed? The options are "full" (the default) for -1 to 1 with a legend,
+#' "range" for the range of correlation values in \code{rdf} with a legend,
+#' or "none" for colors between -1 to 1 with no legend displayed.
 #' @param colours,colors Vector of colors to use for n-color gradient.
 #' @param repel Should variable labels repel each other? If TRUE, text is added
 #'   via \code{\link[ggrepel]{geom_text_repel}} instead of \code{\link[ggplot2]{geom_text}}
@@ -137,10 +142,11 @@ rplot.default <- function(rdf, ...) {
 #' network_plot(x)
 #' network_plot(x, min_cor = .1)
 #' network_plot(x, min_cor = .6)
-#' network_plot(x, min_cor = .7, colors = c("red", "green"), legend = TRUE)
+#' network_plot(x, min_cor = .2, colors = c("red", "green"), legend = "full")
+#' network_plot(x, min_cor = .2, colors = c("red", "green"), legend = "range")
 network_plot <- function(rdf,
                          min_cor = .3,
-                         legend = TRUE,
+                         legend = c("full", "range", "none"),
                          colours = c("indianred2", "white", "skyblue1"),
                          repel = TRUE,
                          curved = TRUE,
